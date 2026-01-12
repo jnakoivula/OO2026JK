@@ -39,3 +39,18 @@
 
 # debug information files
 *.dwo
+
+# All build -directories
+build/
+**/build/
+**/BUILD/
+**/BUILD-*/
+
+#All Qt Creator -directories
+.qtcreator/
+**/.qtcreator/
+
+#Qt Creator user files
+*.user
+*.user.*
+
