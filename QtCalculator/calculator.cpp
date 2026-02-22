@@ -23,6 +23,11 @@ Calculator::Calculator(QWidget *parent)
     for (QPushButton *button : operandButtons) {
         connect(button, &QPushButton::clicked, this, &Calculator::addSubMulDivClickHandler);
     }
+    //same thing for clear and Enter
+    QList<QPushButton*> clearEnterButtons = {ui->clear, ui->enter};
+    for (QPushButton *button : clearEnterButtons) {
+        connect(button, &QPushButton::clicked, this, &Calculator::clearAndEnterClickHandler);
+    }
 }
 
 Calculator::~Calculator()
@@ -32,13 +37,17 @@ Calculator::~Calculator()
 
 void Calculator::numberClickedHandler()
 {
+    //return the qobject that sent the signal -> convert it to a QPushButton pointer
     QPushButton *button = qobject_cast<QPushButton*>(sender());
 
+    //Get the name of the button that was pressed
     QString name = button->objectName();
     qDebug() << "Button name: " << name;
 
+    //Used to extract the digit from the object name i.e. "N1" = 1, "N9" = 9
     QString digit = name.last(1);
 
+    //sets pressed number in its corresponding box
     if (state == 1) {
         number1 += digit;
         ui->num1->setText(number1);
@@ -50,7 +59,52 @@ void Calculator::numberClickedHandler()
 
 void Calculator::clearAndEnterClickHandler()
 {
+    QPushButton *button = qobject_cast<QPushButton*>(sender());
 
+    QString name = button ->objectName();
+    qDebug() << "Button name: " << name;
+
+        //Clear resets the calculator
+    if (name == "clear") {
+        state = 1;
+        number1.clear();
+        number2.clear();
+        resetLineEdits();
+        //Enter performs the calculation
+    } else if (name == "enter") {
+
+        //convert QString to float
+        float n1 = number1.toFloat();
+        float n2 = number2.toFloat();
+
+        qDebug() <<"Number 1 = " << n1 << " and number 2 = " << n2 << Qt::endl;
+        //operations for selected operand
+        switch (operand) {
+        case 0:
+            result = n1+n2;
+            break;
+        case 1:
+            result = n1-n2;
+            break;
+        case 2:
+            result = n1*n2;
+            break;
+        case 3:
+            //Can't divide by 0
+            if (n2 == 0) {
+                ui->result->setText("Error");
+                return;
+            }
+            result = n1/n2;
+            break;
+        }
+        //result in result box, converted back to QString
+        ui->result->setText(QString::number(result));
+        //if you want to keep adding operands to the result
+        number1 = QString::number(result);
+        number2.clear();
+        state = 2;
+    }
 }
 
 void Calculator::addSubMulDivClickHandler()
@@ -60,7 +114,7 @@ void Calculator::addSubMulDivClickHandler()
     QString name = button ->objectName();
     qDebug() << "Button name: " << name;
 
-    //determines which operand is being used
+    //determines which operand is being used, stored as an int for switch(operand)
     if (name == "add")
         operand = 0;
     else if (name == "sub")
@@ -75,5 +129,8 @@ void Calculator::addSubMulDivClickHandler()
 
 void Calculator::resetLineEdits()
 {
-
+    //resets the UI elements
+    ui->num1->clear();
+    ui->num2->clear();
+    ui->result->clear();
 }
