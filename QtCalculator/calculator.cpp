@@ -103,6 +103,9 @@ void Calculator::clearAndEnterClickHandler()
         //if you want to keep adding operands to the result
         number1 = QString::number(result);
         number2.clear();
+        //also updates the first box with the result for clarity
+        ui->num1->setText(number1);
+        ui->num2->setText(number2);
         state = 2;
     }
 }
